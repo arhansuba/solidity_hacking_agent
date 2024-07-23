@@ -1,5 +1,13 @@
 from crewai import Agent
-
+from typing import List, Dict, Any
+from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent
+from langchain.prompts import StringPromptTemplate
+from langchain import OpenAI, LLMChain
+from langchain.schema import AgentAction, AgentFinish
+from pydantic import BaseModel, Field
+import requests
+from bs4 import BeautifulSoup
+import re
 # Define research agent
 research_agent = Agent(
     role='Researcher',
@@ -35,15 +43,7 @@ attack_manager = Agent(
     max_iter=25,
     allow_delegation=True
 )
-from typing import List, Dict, Any
-from langchain.agents import Tool, AgentExecutor, LLMSingleActionAgent
-from langchain.prompts import StringPromptTemplate
-from langchain import OpenAI, LLMChain
-from langchain.schema import AgentAction, AgentFinish
-from pydantic import BaseModel, Field
-import requests
-from bs4 import BeautifulSoup
-import re
+
 
 class ResearchAgent(BaseModel):
     llm: Any = Field(default_factory=lambda: OpenAI(temperature=0.3))

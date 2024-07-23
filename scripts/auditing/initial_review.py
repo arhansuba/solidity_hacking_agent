@@ -1,10 +1,10 @@
-# auditing/initial_review.py
-
 from langchain.agents import initialize_agent, Tool
 from langchain.llms import OpenAI
 
 def initial_review(vectordb):
-    llm = OpenAI(temperature=0)
+    """Perform an initial review of the smart contract to identify potential vulnerabilities."""
+    
+    llm = OpenAI(temperature=0)  # Set up the LLM with a deterministic response
     
     tools = [
         Tool(
@@ -14,12 +14,28 @@ def initial_review(vectordb):
         )
     ]
     
-    agent = initialize_agent(tools, llm, agent="zero-shot-react-description", verbose=True)
+    agent = initialize_agent(
+        tools=tools,
+        llm=llm,
+        agent_type="zero-shot-react-description",
+        verbose=True
+    )
     
-    review = agent.run("Perform an initial review of the smart contract. Identify potential vulnerabilities and areas of concern.")
+    # Run the agent to review the smart contract
+    review = agent.run(
+        "Perform an initial review of the smart contract. Identify potential vulnerabilities and areas of concern."
+    )
     
     return review
 
-# Usage
-review_result = initial_review(vectordb)
-print(review_result)
+# Usage example
+if __name__ == "__main__":
+    # Example vector database object
+    class MockVectorDB:
+        def similarity_search(self, query):
+            # Mock implementation for demonstration
+            return f"Results for query: {query}"
+    
+    vectordb = MockVectorDB()
+    review_result = initial_review(vectordb)
+    print(review_result)

