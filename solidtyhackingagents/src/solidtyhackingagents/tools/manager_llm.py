@@ -1,3 +1,5 @@
+# manager_llm.py
+
 from langchain_openai import ChatOpenAI
 
 # Initialize the manager LLM
@@ -15,6 +17,17 @@ class Crew:
         # Example of how to start the crew process
         print("Running crew with the manager LLM...")
         # Logic to manage agents and tasks
+        for task in self.tasks:
+            agent = self.assign_agent(task)
+            result = agent.execute(task)
+            print(f"Task: {task.description} | Agent: {agent.role} | Result: {result}")
+
+    def assign_agent(self, task):
+        # Example logic for assigning an agent to a task
+        for agent in self.agents:
+            if agent.can_handle(task):
+                return agent
+        return None
 
 class Process:
     hierarchical = 'hierarchical'
@@ -29,10 +42,26 @@ research_task = "Research Task"
 audit_task = "Audit Task"
 attack_task = "Attack Task"
 
+# Define the agents with appropriate roles and functionalities
+agents = [
+    research_agent,
+    audit_agent,
+    attack_manager,
+    # Add other agents as needed
+]
+
+# Define the tasks with their descriptions and expected outputs
+tasks = [
+    research_task,
+    audit_task,
+    attack_task,
+    # Add other tasks as needed
+]
+
 # Initialize crew with manager LLM
 crew = Crew(
-    agents=[research_agent, audit_agent, attack_manager],
-    tasks=[research_task, audit_task, attack_task],
+    agents=agents,
+    tasks=tasks,
     process=Process.hierarchical,
     manager_llm=manager_llm
 )

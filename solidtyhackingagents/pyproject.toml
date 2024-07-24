@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "solidtyhackingagents"
+version = "0.1.0"
+description = "SolidtyHackingAgents using crewAI"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<=3.13"
+crewai = { extras = ["tools"], version = "^0.41.1" }
+
+[tool.poetry.scripts]
+solidtyhackingagents = "solidtyhackingagents.main:run"
+train = "solidtyhackingagents.main:train"
+replay = "solidtyhackingagents.main:replay"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
