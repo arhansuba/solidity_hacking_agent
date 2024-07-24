@@ -1,25 +1,25 @@
-# main.py
+import sys
+import os
+
+
+
+# Add the parent directory of 'solidtyhackingagents' to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from crewai import Agent, Task, Crew, Process
 from langchain_openai import ChatOpenAI
-from scripts.auditing.automated_scanning import automated_scanning
-from scripts.auditing.code_cleanliness import check_code_cleanliness
-from scripts.auditing.initial_review import initial_review
-from scripts.auditing.issue_categorization import categorize_issues
-from scripts.auditing.manual_review import perform_manual_review
-from scripts.auditing.ongoing_security import ongoing_security_monitoring
-from scripts.auditing.report_generation import generate_report
-from scripts.auditing.retesting_verification import retest_verification
-from scripts.auditing.testing import comprehensive_testing
-
-# main.py
-
-from crewai import Agent, Task, Crew, Process
-from langchain_openai import ChatOpenAI
-from utils.logging_utils import setup_logging
+from solidtyhackingagents.tools.auditing.automated_scanning import automated_scanning
+from solidtyhackingagents.tools.auditing.code_cleanliness import check_code_cleanliness
+from solidtyhackingagents.tools.auditing.initial_review import initial_review
+from solidtyhackingagents.tools.auditing.report_generation import  run_retests as generate_report
+from solidtyhackingagents.tools.auditing.retesting_verification import retest_verification
+from solidtyhackingagents.tools.auditing.testing import comprehensive_testing
+from solidtyhackingagents.tools.utils.logging_utils import setup_logger as setup_logging
 
 # Setup logging
-logger = setup_logging()
+logger_name = 'solidtyhackingagents'
+log_file = 'solidtyhackingagents.log'
+logger = setup_logging(name=logger_name, log_file=log_file)
 
 # Define agents
 analyst = Agent(
@@ -121,15 +121,9 @@ tasks = [
     ),
     Task(
         description="Manual review of the smart contract.",
-        func=perform_manual_review,
+        func=manual_reviewer,
         expected_output="Manual review report.",
         agent=manual_reviewer
-    ),
-    Task(
-        description="Categorize identified issues.",
-        func=categorize_issues,
-        expected_output="Categorized issues report.",
-        agent=issue_categorizer
     ),
     Task(
         description="Retest the smart contract for previously identified vulnerabilities.",
@@ -149,12 +143,7 @@ tasks = [
         expected_output="Final report.",
         agent=report_generator
     ),
-    Task(
-        description="Ongoing security monitoring.",
-        func=ongoing_security_monitoring,
-        expected_output="Ongoing security report.",
-        agent=security_monitor
-    ),
+  
 ]
 
 # Set up manager LLM
@@ -181,4 +170,3 @@ crew = Crew(
 # Start the crew's work
 result = crew.kickoff()
 logger.info(result)
-

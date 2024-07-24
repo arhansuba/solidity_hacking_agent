@@ -1,86 +1,52 @@
 import json
-from datetime import datetime
-from typing import Dict, Any, List
 import subprocess
+import os
+from typing import Any, Dict, List
 
-# Configuration
-CONTRACT_PATH = 'path/to/smart_contract.sol'
-REPORT_PATH = 'path/to/security_report.json'
-OUTPUT_REPORT = 'path/to/generated_report.md'
-
-def load_report(report_path: str) -> Dict[str, Any]:
-    """Load the security report from file."""
-    try:
-        with open(report_path, 'r') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return {"last_checked": None, "issues": {}}
-
-def run_pylint(contract_path: str) -> str:
-    """Run pylint to check code cleanliness."""
-    (pylint_stdout, pylint_stderr) = subprocess.Popen(["pylint", contract_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True).communicate()
-    return pylint_stdout
-
-def run_mythril(contract_path: str) -> str:
-    """Run Mythril to check for vulnerabilities."""
-    result = subprocess.run(["myth", "analyze", contract_path], capture_output=True, text=True)
-    return result.stdout
-
-def run_slither(contract_path: str) -> str:
-    """Run Slither to check for vulnerabilities."""
-    result = subprocess.run(["slither", contract_path], capture_output=True, text=True)
-    return result.stdout
-
-def generate_report(report: Dict[str, Any], output_path: str):
-    """Generate a structured report in Markdown format."""
-    with open(output_path, 'w') as file:
-        file.write("# Security Report\n")
-        file.write(f"**Generated on:** {datetime.now().isoformat()}\n\n")
-        
-        file.write("## Summary\n")
-        file.write(f"**Last Checked:** {report['last_checked']}\n\n")
-        
-        file.write("## Code Cleanliness\n")
-        file.write("### Pylint Report\n")
-        file.write("```\n")
-        file.write(run_pylint(CONTRACT_PATH))
-        file.write("```\n\n")
-        
-        file.write("## Vulnerability Analysis\n")
-        file.write("### Mythril Report\n")
-        file.write("```\n")
-        file.write(run_mythril(CONTRACT_PATH))
-        file.write("```\n\n")
-        
-        file.write("### Slither Report\n")
-        file.write("```\n")
-        file.write(run_slither(CONTRACT_PATH))
-        file.write("```\n\n")
-        
-        file.write("## Detailed Issues\n")
-        for issue_type, issues in report['issues'].items():
-            file.write(f"### {issue_type.capitalize()}\n")
-            for issue in issues:
-                file.write(f"- {issue}\n")
-            file.write("\n")
-
-def generate_security_report():
-    """Main function to generate the security report."""
-    report = load_report(REPORT_PATH)
+def run_retests(contract_path: str, vulnerabilities: List[str]) -> Dict[str, Any]:
+    """Retest the smart contract for previously identified vulnerabilities."""
     
-    # Gather additional data (if needed)
-    pylint_report = run_pylint(CONTRACT_PATH)
-    mythril_report = run_mythril(CONTRACT_PATH)
-    slither_report = run_slither(CONTRACT_PATH)
+    retest_results = {}
     
-    # Update report with gathered data
-    report['pylint_report'] = pylint_report
-    report['mythril_report'] = mythril_report
-    report['slither_report'] = slither_report
-    
-    # Generate the final report
-    generate_report(report, OUTPUT_REPORT)
-    print(f"Report generated: {OUTPUT_REPORT}")
+    if not os.path.isfile(contract_path):
+        retest_results["error"] = f"Contract file not found at: {contract_path}"
+        return retest_results
 
-if __name__ == "__main__":
-    generate_security_report()
+    for vulnerability in vulnerabilities:
+        if vulnerability == "integer_underflow":
+            result = subprocess.run(["myth", "analyze", "--execution-timeout", "300", contract_path, "-s", "integer_underflow"], capture_output=True, text=True)
+            retest_results["integer_underflow"] = result.stdout
+        
+        elif vulnerability == "reentrancy":
+            result = subprocess.run(["myth", "analyze", "--execution-timeout", "300", contract_path, "-s", "reentrancy"], capture_output=True, text=True)
+            retest_results["reentrancy"] = result.stdout
+        
+        # Add other vulnerabilities and corresponding retest commands as needed
+    
+    return retest_results
+
+def retest_verification(contract_path: str, initial_report_path: str) -> Dict[str, Any]:
+    """Perform retesting verification on the smart contract."""
+    
+    if not os.path.isfile(initial_report_path):
+        return {"error": f"Initial report file not found at: {initial_report_path}"}
+    
+    # Load initial report
+    with open(initial_report_path, 'r') as file:
+        initial_report = json.load(file)
+    
+    vulnerabilities = initial_report.get("identified_vulnerabilities", [])
+    
+    retest_results = run_retests(contract_path, vulnerabilities)
+    
+    # Save retest results to file
+    with open("retest_results.json", 'w') as file:
+        json.dump(retest_results, file, indent=4)
+    
+    return retest_results
+
+# Usage
+contract_path = "/home/arhan/SolidityHackingAgent/MultiOwnable.sol"  # Update this path when the contract is available
+initial_report_path = "/home/arhan/SolidityHackingAgent/security_report.json"
+retest_results = retest_verification(contract_path, initial_report_path)
+print(retest_results)

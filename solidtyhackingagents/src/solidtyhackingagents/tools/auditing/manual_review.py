@@ -47,6 +47,6 @@ def manual_review(contract_path: str, report_path: str):
 
 # Usage
 if __name__ == "__main__":
-    contract_path = "path/to/smart_contract.sol"
-    report_path = "path/to/review_report.json"
-    manual_review(contract_path, report_path)
+    contract_path = "/home/arhan/SolidityHackingAgent/MultiOwnable.sol"
+    report_path = "/home/arhan/SolidityHackingAgent/security_report.json"
+    manual_review(contract_path)

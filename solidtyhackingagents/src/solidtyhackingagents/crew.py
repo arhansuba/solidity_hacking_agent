@@ -1,55 +1,71 @@
+# solidtyhackingagents/src/solidtyhackingagents/crew.py
+
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+import yaml
 
-# Uncomment the following line to use an example of a custom tool
-# from solidtyhackingagents.tools.custom_tool import MyCustomTool
-
-# Check our tools documentations for more information on how to use them
-# from crewai_tools import SerperDevTool
+# Import your custom tool
+from solidtyhackingagents.tools.custom_tool import MyCustomTool
 
 @CrewBase
-class SolidtyhackingagentsCrew():
-	"""Solidtyhackingagents crew"""
-	agents_config = 'config/agents.yaml'
-	tasks_config = 'config/tasks.yaml'
+class SolidtyhackingagentsCrew:
+    """Crew for managing Solidity hacking agents"""
 
-	@agent
-	def researcher(self) -> Agent:
-		return Agent(
-			config=self.agents_config['researcher'],
-			# tools=[MyCustomTool()], # Example of custom tool, loaded on the beginning of file
-			verbose=True
-		)
+    agents_config_path = 'config/agents.yaml'
+    tasks_config_path = 'config/tasks.yaml'
 
-	@agent
-	def reporting_analyst(self) -> Agent:
-		return Agent(
-			config=self.agents_config['reporting_analyst'],
-			verbose=True
-		)
+    def __init__(self):
+        # Load agents and tasks configurations
+        self.agents_config = self.load_config(self.agents_config_path)
+        self.tasks_config = self.load_config(self.tasks_config_path)
 
-	@task
-	def research_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['research_task'],
-			agent=self.researcher()
-		)
+    def load_config(self, path: str) -> dict:
+        """Load configuration from a YAML file"""
+        with open(path, 'r') as file:
+            return yaml.safe_load(file)
 
-	@task
-	def reporting_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['reporting_task'],
-			agent=self.reporting_analyst(),
-			output_file='report.md'
-		)
+    @agent
+    def researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config['researcher'],
+            tools=[MyCustomTool()],  # Use the custom tool
+            verbose=True
+        )
 
-	@crew
-	def crew(self) -> Crew:
-		"""Creates the Solidtyhackingagents crew"""
-		return Crew(
-			agents=self.agents, # Automatically created by the @agent decorator
-			tasks=self.tasks, # Automatically created by the @task decorator
-			process=Process.sequential,
-			verbose=2,
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-		)
+    @agent
+    def reporting_analyst(self) -> Agent:
+        return Agent(
+            config=self.agents_config['reporting_analyst'],
+            verbose=True
+        )
+
+    @task
+    def research_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['research_task'],
+            agent=self.researcher()
+        )
+
+    @task
+    def reporting_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['reporting_task'],
+            agent=self.reporting_analyst(),
+            output_file='report.md'
+        )
+
+    @crew
+    def crew(self) -> Crew:
+        """Create and return the Solidtyhackingagents crew"""
+        return Crew(
+            agents=[
+                self.researcher(), 
+                self.reporting_analyst()
+            ],
+            tasks=[
+                self.research_task(), 
+                self.reporting_task()
+            ],
+            process=Process.sequential,  # You can choose Process.hierarchical if preferred
+            verbose=2
+        )

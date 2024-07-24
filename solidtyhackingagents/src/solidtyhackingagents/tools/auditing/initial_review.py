@@ -1,5 +1,5 @@
 from langchain.agents import initialize_agent, Tool
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 
 def initial_review(vectordb):
     """Perform an initial review of the smart contract to identify potential vulnerabilities."""

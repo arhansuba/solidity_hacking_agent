@@ -1,46 +1,39 @@
 import json
 import subprocess
-from typing import Any, Dict
+from typing import Any, Dict, List
 
-def run_tests(contract_path: str) -> Dict[str, str]:
+def run_tests(contract_path: str) -> Dict[str, Any]:
     """Run various tests on the smart contract."""
     
     test_results = {}
     
-    # Formal Verification
-    formal_verification_result = subprocess.run(["verisol", contract_path], capture_output=True, text=True)
-    test_results["formal_verification"] = formal_verification_result.stdout
-    
-    # Fuzz Testing
-    fuzz_testing_result = subprocess.run(["echidna-test", contract_path], capture_output=True, text=True)
-    test_results["fuzz_testing"] = fuzz_testing_result.stdout
-    
-    # Invariant Testing
-    invariant_testing_result = subprocess.run(["manticore", contract_path], capture_output=True, text=True)
-    test_results["invariant_testing"] = invariant_testing_result.stdout
-    
-    # Performance Testing
-    performance_testing_result = subprocess.run(["solidity-coverage", contract_path], capture_output=True, text=True)
-    test_results["performance_testing"] = performance_testing_result.stdout
-    
-    # Scalability Testing
-    scalability_testing_result = subprocess.run(["myth", "analyze", "--execution-timeout", "300", contract_path], capture_output=True, text=True)
-    test_results["scalability_testing"] = scalability_testing_result.stdout
-    
+    # Ensure myth is installed
+    if subprocess.run(["which", "myth"], capture_output=True, text=True).returncode != 0:
+        raise FileNotFoundError("The 'myth' command is not found. Please install it.")
+
+    # Mythril analysis
+    mythril_result = subprocess.run(
+        ["myth", "analyze", contract_path],
+        capture_output=True, text=True
+    )
+    test_results["mythril_analysis"] = {
+        "stdout": mythril_result.stdout,
+        "stderr": mythril_result.stderr,
+        "returncode": mythril_result.returncode
+    }
+
     return test_results
 
 def comprehensive_testing(contract_path: str) -> Dict[str, Any]:
     """Perform comprehensive testing on the smart contract."""
-    
-    test_results = run_tests(contract_path)
-    
-    # Save test results to file
-    with open("test_results.json", 'w') as file:
-        json.dump(test_results, file, indent=4)
-    
-    return test_results
+    return run_tests(contract_path)
 
 # Usage
-contract_path = "path/to/smart_contract.sol"
-test_results = comprehensive_testing(contract_path)
-print(test_results)
+contract_path = "/home/arhan/SolidityHackingAgent/MultiOwnable.sol"
+try:
+    test_results = comprehensive_testing(contract_path)
+    print(test_results)
+except FileNotFoundError as e:
+    print(e)
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")

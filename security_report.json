@@ -1,0 +1,24 @@
+{
+    "report": {
+        "date": "2022-10-15",
+        "author": "Arhan",
+        "summary": "Security vulnerabilities found in SolidityHackingAgent",
+        "vulnerabilities": [
+            {
+                "id": "CVE-2022-1234",
+                "severity": "High",
+                "description": "A high severity vulnerability description goes here."
+            },
+            {
+                "id": "CVE-2022-5678",
+                "severity": "Medium",
+                "description": "A medium severity vulnerability description goes here."
+            },
+            {
+                "id": "CVE-2022-9012",
+                "severity": "Low",
+                "description": "A low severity vulnerability description goes here."
+            }
+        ]
+    }
+}

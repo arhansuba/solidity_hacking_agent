@@ -5,8 +5,8 @@ from typing import Dict, Any
 from datetime import datetime
 
 # Configuration
-CONTRACT_PATH = 'path/to/smart_contract.sol'
-REPORT_PATH = 'path/to/security_report.json'
+CONTRACT_PATH = '/home/arhan/SolidityHackingAgent/MultiOwnable.sol'
+REPORT_PATH = '/home/arhan/SolidityHackingAgent/security_report.json'
 CHECK_INTERVAL = 86400  # 24 hours in seconds
 
 def load_previous_report(report_path: str) -> Dict[str, Any]:

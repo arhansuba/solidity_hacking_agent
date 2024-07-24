@@ -1,14 +1,19 @@
-# auditing/code_cleanliness.py
-
 import re
-from pylint import epylint as lint
+from pylint import lint
+from pylint.reporters.text import TextReporter
+from io import StringIO
 
 def check_code_cleanliness(contract_path):
-    # Run pylint
-    (pylint_stdout, pylint_stderr) = lint.py_run(contract_path, return_std=True)
+    # Create a new pylint lint.Run instance
+    pylint_output = StringIO()
+    reporter = TextReporter(pylint_output)
+    lint.Run([contract_path], reporter=reporter, exit=False)
     
+    pylint_stdout = pylint_output.getvalue()
+    pylint_stderr = None  # Pylint does not provide a direct way to capture stderr output
+
     # Extract pylint score
-    score_match = re.search(r"Your code has been rated at (\d+\.\d+)/10", pylint_stdout.getvalue())
+    score_match = re.search(r"Your code has been rated at (\d+\.\d+)/10", pylint_stdout)
     if score_match:
         pylint_score = float(score_match.group(1))
     else:
@@ -29,7 +34,8 @@ def check_code_cleanliness(contract_path):
         "code_smells": smells
     }
 
-# Usage
-contract_path = "path/to/smart_contract.sol"
-cleanliness_report = check_code_cleanliness(contract_path)
-print(cleanliness_report)
+# Usage example
+if __name__ == "__main__":
+    contract_path = "/home/arhan/SolidityHackingAgent/MultiOwnable.sol"
+    cleanliness_report = check_code_cleanliness(contract_path)
+    print(cleanliness_report)

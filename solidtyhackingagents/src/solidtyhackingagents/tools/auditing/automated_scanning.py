@@ -58,6 +58,6 @@ def automated_scanning(contract_path):
 
 # Usage example
 if __name__ == "__main__":
-    contract_path = "path/to/smart_contract.sol"
+    contract_path = "/home/arhan/SolidityHackingAgent/MultiOwnable.sol"
     scan_results = automated_scanning(contract_path)
     print(scan_results)

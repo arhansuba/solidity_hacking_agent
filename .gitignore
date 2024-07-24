@@ -1,0 +1,35 @@
+# Python specific
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.db
+*.sqlite3
+*.egg-info/
+env/
+venv/
+my-env/
+*.log
+
+# Poetry specific
+.poetry/
+*.lock
+*.toml
+
+# Mythril specific
+path/to/initial_report.json
+path/to/smart_contract.sol
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# IDE/editor specific
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Operating System files
+.DS_Store
+Thumbs.db

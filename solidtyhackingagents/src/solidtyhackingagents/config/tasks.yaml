@@ -1,15 +1,603 @@
-research_task:
-  description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is 2024.
-  expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
+# src/solidtyhackingagents/config/tasks.yaml
 
-reporting_task:
+# Attack Methods Tasks
+access_control_attack_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Execute and analyze access control attacks to identify vulnerabilities in permission settings.
   expected_output: >
-    A fully fledge reports with the mains topics, each with a full section of information.
-    Formatted as markdown without '```'
+    Detailed report on identified access control issues, including exploitation techniques and recommendations for mitigation.
+  agent: attack_manager
+
+adversarial_attacks_task:
+  description: >
+    Simulate and assess adversarial attacks to evaluate the robustness of smart contracts against such threats.
+  expected_output: >
+    A summary of adversarial attack results, including effectiveness and potential impacts.
+  agent: attack_manager
+
+business_logic_attack_task:
+  description: >
+    Identify and exploit vulnerabilities related to business logic in smart contracts.
+  expected_output: >
+    A report detailing business logic flaws and suggested improvements.
+  agent: attack_manager
+
+clickjacking_attack_task:
+  description: >
+    Test for clickjacking vulnerabilities by attempting to deceive users into performing unintended actions.
+  expected_output: >
+    A report on any clickjacking vulnerabilities discovered and suggested countermeasures.
+  agent: attack_manager
+
+command_injection_attack_task:
+  description: >
+    Conduct command injection attacks to check for vulnerabilities that allow unauthorized command execution.
+  expected_output: >
+    Detailed findings on command injection vulnerabilities and recommended fixes.
+  agent: attack_manager
+
+consensus_attack_task:
+  description: >
+    Evaluate smart contracts for potential vulnerabilities related to consensus mechanisms.
+  expected_output: >
+    Analysis report highlighting consensus vulnerabilities and suggestions for improvements.
+  agent: attack_manager
+
+cross_site_scripting_attack_task:
+  description: >
+    Perform cross-site scripting (XSS) attacks to identify vulnerabilities in user input handling.
+  expected_output: >
+    A report detailing XSS vulnerabilities, including exploitation methods and mitigation strategies.
+  agent: attack_manager
+
+cryptographic_attack_task:
+  description: >
+    Test cryptographic implementations in smart contracts to find weaknesses or flaws.
+  expected_output: >
+    Detailed findings on cryptographic weaknesses and recommendations for securing cryptographic functions.
+  agent: attack_manager
+
+custom_exploit_task:
+  description: >
+    Develop and test custom exploits based on identified vulnerabilities.
+  expected_output: >
+    Working custom exploits with documentation on how they exploit the vulnerabilities and their impacts.
+  agent: exploit_generator_agent
+
+data_leakage_attack_task:
+  description: >
+    Identify and exploit data leakage vulnerabilities in smart contracts.
+  expected_output: >
+    A report on data leakage vulnerabilities found, with suggested fixes and impact analysis.
+  agent: attack_manager
+
+ddos_attack_task:
+  description: >
+    Simulate distributed denial-of-service (DDoS) attacks to test the resilience of smart contracts.
+  expected_output: >
+    Analysis of DDoS attack impact and recommendations for improving resilience.
+  agent: attack_manager
+
+delegatecall_attack_task:
+  description: >
+    Test for vulnerabilities related to `delegatecall` in smart contracts.
+  expected_output: >
+    Findings on delegatecall vulnerabilities with recommendations for securing smart contracts.
+  agent: attack_manager
+
+denial_of_service_attack_task:
+  description: >
+    Perform denial-of-service attacks to evaluate the contract's handling of such threats.
+  expected_output: >
+    Report on denial-of-service vulnerabilities and suggested improvements.
+  agent: attack_manager
+
+dos_attack_task:
+  description: >
+    Conduct denial-of-service attacks to test the smart contract’s resilience against such attacks.
+  expected_output: >
+    Detailed report on the impact of the attacks and recommendations for improvement.
+  agent: attack_manager
+
+front_running_attack_task:
+  description: >
+    Test for front-running vulnerabilities in smart contract transactions.
+  expected_output: >
+    A report on front-running issues found and suggestions for mitigating these vulnerabilities.
+  agent: attack_manager
+
+integer_underflow_attack_task:
+  description: >
+    Simulate integer underflow attacks to identify vulnerabilities in numerical operations.
+  expected_output: >
+    Detailed findings on integer underflow issues and recommendations for code improvements.
+  agent: attack_manager
+
+load_adversarial_datasets_task:
+  description: >
+    Load and utilize adversarial datasets to test the robustness of smart contracts.
+  expected_output: >
+    Analysis of results from testing with adversarial datasets, including any vulnerabilities discovered.
+  agent: attack_manager
+
+overflow_attack_task:
+  description: >
+    Conduct overflow attacks to identify vulnerabilities related to numerical overflows.
+  expected_output: >
+    Report detailing overflow vulnerabilities and suggested code improvements.
+  agent: attack_manager
+
+phishing_attack_task:
+  description: >
+    Simulate phishing attacks to identify weaknesses in user interactions and data handling.
+  expected_output: >
+    Findings on phishing vulnerabilities and recommendations for enhancing security.
+  agent: attack_manager
+
+race_condition_attack_task:
+  description: >
+    Test for race condition vulnerabilities in smart contracts.
+  expected_output: >
+    A report detailing race condition issues and suggestions for mitigation.
+  agent: attack_manager
+
+reentrancy_attack_task:
+  description: >
+    Conduct reentrancy attacks to test for vulnerabilities that could be exploited in smart contracts.
+  expected_output: >
+    Detailed findings on reentrancy vulnerabilities and recommendations for securing contracts.
+  agent: attack_manager
+
+session_fixation_attack_task:
+  description: >
+    Test for session fixation vulnerabilities in smart contracts and related systems.
+  expected_output: >
+    A report on session fixation issues and recommendations for improving security.
+  agent: attack_manager
+
+smart_contract_misconfiguration_task:
+  description: >
+    Identify and address misconfigurations in smart contract deployments.
+  expected_output: >
+    Findings on misconfigurations and suggested corrections to improve security.
+  agent: attack_manager
+
+smart_contract_reconfiguration_attack_task:
+  description: >
+    Test for vulnerabilities related to the reconfiguration of smart contracts.
+  expected_output: >
+    Report detailing reconfiguration vulnerabilities and recommendations for secure practices.
+  agent: attack_manager
+
+spirent_import_task:
+  description: >
+    Import data into Spirent CyberFlood for further analysis and testing.
+  expected_output: >
+    Successfully imported data with detailed documentation on the import process.
+  agent: attack_manager
+
+timestamp_dependency_attack_task:
+  description: >
+    Test for timestamp dependencies and vulnerabilities in smart contracts.
+  expected_output: >
+    Findings on timestamp-related vulnerabilities and recommendations for improving contract robustness.
+  agent: attack_manager
+
+token_theft_attack_task:
+  description: >
+    Simulate token theft attacks to evaluate the security of token management within smart contracts.
+  expected_output: >
+    A detailed report on token theft vulnerabilities and suggested security enhancements.
+  agent: attack_manager
+
+tx_origin_attack_task:
+  description: >
+    Test for vulnerabilities related to transaction origin in smart contracts.
+  expected_output: >
+    Findings on transaction origin vulnerabilities with recommendations for improving security.
+  agent: attack_manager
+
+unchecked_low_level_calls_task:
+  description: >
+    Test for vulnerabilities related to unchecked low-level calls in smart contracts.
+  expected_output: >
+    A report on vulnerabilities found due to unchecked low-level calls and suggested improvements.
+  agent: attack_manager
+
+wallet_exploit_task:
+  description: >
+    Test for wallet vulnerabilities and exploits related to smart contracts.
+  expected_output: >
+    Detailed findings on wallet-related vulnerabilities and recommendations for secure practices.
+  agent: attack_manager
+
+xml_external_entity_attack_task:
+  description: >
+    Test for XML external entity (XXE) vulnerabilities in smart contracts and related systems.
+  expected_output: >
+    Report on XXE vulnerabilities with recommendations for enhancing security.
+  agent: attack_manager
+
+# Auditing Tasks
+automated_scanning_task:
+  description: >
+    Perform automated scanning of smart contracts to identify common vulnerabilities.
+  expected_output: >
+    A report on vulnerabilities found through automated scanning with recommendations for remediation.
+  agent: audit_agent
+
+code_cleanliness_task:
+  description: >
+    Evaluate the code cleanliness of smart contracts to ensure adherence to best practices.
+  expected_output: >
+    Findings on code cleanliness with recommendations for improving code quality.
+  agent: audit_agent
+
+initial_review_task:
+  description: >
+    Conduct an initial review of smart contract code to identify obvious issues and areas for improvement.
+  expected_output: >
+    Summary of initial findings and suggestions for further detailed analysis.
+  agent: audit_agent
+
+issue_categorization_task:
+  description: >
+    Categorize identified issues in smart contracts based on their severity and impact.
+  expected_output: >
+    Categorized list of issues with details on severity and recommended actions.
+  agent: audit_agent
+
+manual_review_task:
+  description: >
+    Perform a detailed manual review of smart contracts to uncover complex issues not detected by automated tools.
+  expected_output: >
+    Comprehensive manual review report highlighting complex issues and recommendations.
+  agent: audit_agent
+
+ongoing_security_task:
+  description: >
+    Continuously monitor and update the security posture of smart contracts.
+  expected_output: >
+    Regular updates on security status and recommendations for ongoing improvements.
+  agent: audit_agent
+
+preparation_documentation_task:
+  description: >
+    Prepare documentation for the audit process, including methodologies and findings.
+  expected_output: >
+    Well-organized documentation covering the audit process and findings.
+  agent: audit_agent
+
+report_generation_task:
+  description: >
+    Generate detailed reports based on audit findings, research, and testing results.
+  expected_output: >
+    Comprehensive reports with findings, analysis, and recommendations.
+  agent: audit_agent
+
+retesting_verification_task:
+  description: >
+    Retest previously identified issues to verify if they have been properly addressed.
+  expected_output: >
+    Verification results confirming whether issues have been resolved or if further action is needed.
+  agent: audit_agent
+
+testing_task:
+  description: >
+    Conduct various tests to ensure the functionality and security of smart contracts.
+  expected_output: >
+    Detailed testing results, including any issues found and recommendations for improvement.
+  agent: audit_agent
+
+# Configuration Tasks
+configure_agents_task:
+  description: >
+    Configure and set up agent functionalities according to the project needs.
+  expected_output: >
+    Configured agent settings with documentation on configuration choices.
+  agent: agent_config
+
+configure_attacks_task:
+  description: >
+    Set up and configure attack methods and parameters.
+  expected_output: >
+    Configured attack methods with detailed settings documentation.
+  agent: attack_config
+
+update_knowledge_task:
+  description: >
+    Update the knowledge base with the latest findings and research.
+  expected_output: >
+    Updated knowledge base with recent research and findings.
+  agent: knowledge_update_config
+
+setup_model_task:
+  description: >
+    Configure and initialize models used in the project.
+  expected_output: >
+    Initialized models with configuration details and setup documentation.
+  agent: model_config
+
+rapid_deployment_task:
+  description: >
+    Deploy and test new strategies and tools rapidly.
+  expected_output: >
+    Successful deployment of new strategies and tools with testing results.
+  agent: rapid_deployment_config
+
+trend_analysis_task:
+  description: >
+    Analyze trends in vulnerabilities and attacks to inform future strategies.
+  expected_output: >
+    Trend analysis report highlighting key trends and actionable insights.
+  agent: trend_analysis_config
+
+# Dashboards Tasks
+agent_performance_dashboard_task:
+  description: >
+    Create and update dashboards to track agent performance and effectiveness.
+  expected_output: >
+    Updated performance dashboards with relevant metrics and insights.
+  agent: dashboards
+
+cross_platform_comparison_dashboard_task:
+  description: >
+    Develop dashboards comparing performance and vulnerabilities across different platforms.
+  expected_output: >
+    Dashboards showing comparative analysis across platforms.
+  agent: dashboards
+
+vulnerability_trends_dashboard_task:
+  description: >
+    Create dashboards to track and analyze trends in vulnerabilities over time.
+  expected_output: >
+    Trend analysis dashboards with detailed visualizations of vulnerability trends.
+  agent: dashboards
+
+# Knowledge Integration Tasks
+cyfrin_updraft_task:
+  description: >
+    Integrate and update knowledge related to Cyfrin Updraft.
+  expected_output: >
+    Integrated Cyfrin Updraft knowledge with updated documentation.
+  agent: knowledge_integration
+
+vulnerability_knowledge_task:
+  description: >
+    Manage and integrate knowledge related to vulnerabilities and their mitigation.
+  expected_output: >
+    Updated knowledge base with comprehensive vulnerability information.
+  agent: knowledge_integration
+
+# Knowledge Update Tasks
+cross_platform_comparator_task:
+  description: >
+    Compare vulnerabilities and attack methods across different platforms.
+  expected_output: >
+    Comparative analysis report with insights and recommendations.
+  agent: knowledge_update
+
+trend_analyzer_task:
+  description: >
+    Analyze trends in vulnerabilities and attack methods.
+  expected_output: >
+    Trend analysis report with key insights and recommendations.
+  agent: knowledge_update
+
+vulnerability_tracker_task:
+  description: >
+    Track and manage vulnerabilities identified in smart contracts.
+  expected_output: >
+    Updated tracker with details on vulnerabilities and their statuses.
+  agent: knowledge_update
+
+# NLP Processing Tasks
+nlp_query_processor_task:
+  description: >
+    Process and analyze natural language queries related to smart contract vulnerabilities.
+  expected_output: >
+    Processed queries with insights and relevant information extracted.
+  agent: nlp_processing
+
+# Novel Attack Development Tasks
+attack_combinator_task:
+  description: >
+    Develop novel attack vectors by combining existing attack methods.
+  expected_output: >
+    New attack vectors with documentation on their effectiveness and potential impact.
+  agent: novel_attack_development
+
+innovation_engine_task:
+  description: >
+    Develop innovative attack strategies and techniques.
+  expected_output: >
+    Innovative strategies with detailed documentation on their development and use.
+  agent: novel_attack_development
+
+vulnerability_synthesizer_task:
+  description: >
+    Synthesize new vulnerabilities from existing research and findings.
+  expected_output: >
+    Synthesized vulnerabilities with analysis and potential impact.
+  agent: novel_attack_development
+
+# Rapid Deployment Tasks
+attack_vector_deployer_task:
+  description: >
+    Deploy new attack vectors and test their effectiveness.
+  expected_output: >
+    Successfully deployed attack vectors with testing results and impact analysis.
+  agent: rapid_deployment
+
+exploit_prototype_task:
+  description: >
+    Create and test prototypes for new exploits.
+  expected_output: >
+    Functional exploit prototypes with documentation on their use and effectiveness.
+  agent: rapid_deployment
+
+quick_test_framework_task:
+  description: >
+    Develop a framework for rapid testing of new strategies and tools.
+  expected_output: >
+    Quick test framework with documentation on its setup and usage.
+  agent: rapid_deployment
+
+# Scraping Tasks
+forum_scraper_task:
+  description: >
+    Scrape data from forums related to smart contract vulnerabilities and attacks.
+  expected_output: >
+    Scraped forum data with relevant information extracted and organized.
+  agent: scraping
+
+github_scraper_task:
+  description: >
+    Scrape data from GitHub repositories related to smart contract security.
+  expected_output: >
+    Scraped GitHub data with insights on relevant repositories and code.
+  agent: scraping
+
+stackoverflow_scraper_task:
+  description: >
+    Scrape data from StackOverflow related to smart contract development and vulnerabilities.
+  expected_output: >
+    Scraped StackOverflow data with relevant information and insights.
+  agent: scraping
+
+# Testing Tasks
+formal_verification_task:
+  description: >
+    Perform formal verification of smart contracts to ensure correctness and security.
+  expected_output: >
+    Formal verification results with documentation on correctness and any identified issues.
+  agent: testing
+
+fuzz_testing_task:
+  description: >
+    Conduct fuzz testing to identify potential issues in smart contract code.
+  expected_output: >
+    Fuzz testing results with identified issues and recommendations for fixes.
+  agent: testing
+
+invariant_testing_task:
+  description: >
+    Test for invariants in smart contracts to ensure they adhere to expected properties.
+  expected_output: >
+    Invariant testing results with findings and recommendations.
+  agent: testing
+
+performance_testing_task:
+  description: >
+    Evaluate the performance of smart contracts under various conditions.
+  expected_output: >
+    Performance testing results with analysis and recommendations for improvements.
+  agent: testing
+
+scalability_testing_task:
+  description: >
+    Test the scalability of smart contracts to handle increasing loads and transactions.
+  expected_output: >
+    Scalability testing results with findings on performance and recommendations.
+  agent: testing
+
+security_audit_tools_task:
+  description: >
+    Evaluate and configure tools for security auditing of smart contracts.
+  expected_output: >
+    Configuration and evaluation of security audit tools with documentation on their effectiveness.
+  agent: testing
+
+upgradeable_contracts_task:
+  description: >
+    Test and analyze upgradeable smart contracts to ensure their security and functionality.
+  expected_output: >
+    Analysis of upgradeable contracts with findings and recommendations.
+  agent: testing
+
+# Utilities Tasks
+analysis_utils_task:
+  description: >
+    Develop and maintain utility functions for data and analysis tasks.
+  expected_output: >
+    Utility functions with documentation on their use and purpose.
+  agent: utils
+
+attack_utils_task:
+  description: >
+    Create and manage utility functions specifically for attack methods.
+  expected_output: >
+    Attack utility functions with detailed usage documentation.
+  agent: utils
+
+cross_platform_utils_task:
+  description: >
+    Develop utilities for cross-platform analysis and comparison.
+  expected_output: >
+    Cross-platform utilities with documentation on their functionality and use.
+  agent: utils
+
+data_utils_task:
+  description: >
+    Create and maintain utility functions for data handling and processing.
+  expected_output: >
+    Data utility functions with usage details and documentation.
+  agent: utils
+
+encryption_utils_task:
+  description: >
+    Develop utilities for cryptographic operations and encryption.
+  expected_output: >
+    Encryption utility functions with detailed documentation on their implementation.
+  agent: utils
+
+learning_utils_task:
+  description: >
+    Create utilities to support machine learning and data analysis tasks.
+  expected_output: >
+    Learning utilities with documentation on their use in machine learning tasks.
+  agent: utils
+
+logging_utils_task:
+  description: >
+    Develop and manage logging utilities for tracking and debugging.
+  expected_output: >
+    Logging utilities with detailed configuration and usage instructions.
+  agent: utils
+
+network_utils_task:
+  description: >
+    Create utilities for network-related operations and interactions.
+  expected_output: >
+    Network utilities with documentation on their implementation and use.
+  agent: utils
+
+rapid_prototyping_utils_task:
+  description: >
+    Develop utilities to support rapid prototyping and testing.
+  expected_output: >
+    Rapid prototyping utilities with detailed instructions and examples.
+  agent: utils
+
+report_utils_task:
+  description: >
+    Create utilities for generating and managing reports.
+  expected_output: >
+    Report utilities with functionality details and usage documentation.
+  agent: utils
+
+testing_utils_task:
+  description: >
+    Develop utilities to support various testing activities.
+  expected_output: >
+    Testing utilities with documentation on their usage and purpose.
+  agent: utils
+
+trend_analysis_utils_task:
+  description: >
+    Create utilities for analyzing trends in vulnerabilities and attack methods.
+  expected_output: >
+    Trend analysis utilities with detailed documentation on their use.
+  agent: utils
+
+# Add more tasks as necessary
