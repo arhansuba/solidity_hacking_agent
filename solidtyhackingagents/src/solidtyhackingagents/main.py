@@ -1,172 +1,235 @@
 import sys
 import os
+import yaml
+from pathlib import Path
+from langchain_community.llms import Ollama
+import os
+os.environ["OPENAI_API_KEY"] = "NA"
 
-
-
-# Add the parent directory of 'solidtyhackingagents' to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+llm = Ollama(
+    model = "llama3",
+    base_url = "http://localhost:11434")
+# Add the project root to the Python path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(project_root))
 
 from crewai import Agent, Task, Crew, Process
-from langchain_openai import ChatOpenAI
-from solidtyhackingagents.tools.auditing.automated_scanning import automated_scanning
-from solidtyhackingagents.tools.auditing.code_cleanliness import check_code_cleanliness
-from solidtyhackingagents.tools.auditing.initial_review import initial_review
-from solidtyhackingagents.tools.auditing.report_generation import  run_retests as generate_report
-from solidtyhackingagents.tools.auditing.retesting_verification import retest_verification
-from solidtyhackingagents.tools.auditing.testing import comprehensive_testing
-from solidtyhackingagents.tools.utils.logging_utils import setup_logger as setup_logging
+from solidtyhackingagents.tools.hacktool import setup_logger
+from solidtyhackingagents.tools.hacktool import analyze_results
+from solidtyhackingagents.tools.hacktool import (
+    assign_task, attack_manager, audit_agent, basic_error_agent,
+    behavioral_analysis_agent, black_hat_agent, compliance_check_agent,
+    configure_crew, define_agent, disaster_recovery_agent,
+    economic_attack_agent, exploit_generator_agent, forensics_agent,
+    incident_response_agent, knowledge_update_agent, patch_management_agent,
+    privacy_breach_agent, rapid_deployment_agent, report_agent,
+    research_agent, risk_assessment_agent, security_training_agent,
+    social_engineering_agent, threat_intelligence_agent,
+    vulnerability_scanner_agent, white_hat_agent
+)
+from solidtyhackingagents.tools.hacktool import (
+    access_control_attack, adversarial_attacks, business_logic_attack,
+    clickjacking_attack, command_injection_attack, consensus_attack,
+    cross_site_scripting_attack, cryptographic_attack, custom_exploit,
+    data_leakage_attack, ddos_attack, delegatecall_attack,
+    denial_of_service_attack, dos_attack, front_running_attack,
+    integer_underflow_attack, load_adversarial_datasets, overflow_attack,
+    phishing_attack, race_condition_attack, reentrancy_attack,
+    session_fixation_attack, smart_contract_misconfiguration,
+    smart_contract_reconfiguration_attack, timestamp_dependency_attack,
+    token_theft_attack, tx_origin_attack, unchecked_low_level_calls,
+    wallet_exploit
+)
+
+# Import auditing tools
+from solidtyhackingagents.tools.hacktool import (
+    automated_scanning, code_cleanliness, initial_review,
+    issue_categorization, manual_review, ongoing_security,
+    preparation_documentation, report_generation,
+    retesting_verification, testing
+)
+
+
+
+from solidtyhackingagents.tools.hacktool import (
+    formal_verification, fuzz_testing, invariant_testing,
+    performance_testing, scalability_testing, security_audit_tools,
+    upgradeable_contracts
+)
 
 # Setup logging
-logger_name = 'solidtyhackingagents'
-log_file = 'solidtyhackingagents.log'
-logger = setup_logging(name=logger_name, log_file=log_file)
+logger = setup_logger(name='solidtyhackingagents', log_file='solidtyhackingagents.log')
 
-# Define agents
-analyst = Agent(
-    role="Vulnerability Analyst",
-    goal="Identify and analyze vulnerabilities in smart contracts",
-    backstory="Expert in smart contract security and vulnerability analysis.",
-    allow_delegation=False,
-)
+def load_config(file_path):
+    with open(file_path, 'r') as file:
+        return yaml.safe_load(file)
 
-simulator = Agent(
-    role="Attack Simulator",
-    goal="Simulate attacks and stress test smart contracts",
-    backstory="Specialist in attack simulations and stress testing.",
-    allow_delegation=False,
-)
+# Load configurations
+agents_config = load_config(project_root / 'src' / 'solidtyhackingagents' / 'config' / 'agents.yaml')
+tasks_config = load_config(project_root / 'src' / 'solidtyhackingagents' / 'config' / 'tasks.yaml')
 
-scanner = Agent(
-    role="Automated Scanner",
-    goal="Run automated tools to scan for vulnerabilities",
-    backstory="Expert in using automated tools for vulnerability scanning.",
-    allow_delegation=False,
-)
 
-code_reviewer = Agent(
-    role="Code Cleanliness Reviewer",
-    goal="Ensure code cleanliness and adherence to best practices",
-    backstory="Experienced in maintaining high code quality.",
-    allow_delegation=False,
-)
 
-initial_reviewer = Agent(
-    role="Initial Reviewer",
-    goal="Perform an initial review of the smart contract",
-    backstory="Skilled in initial contract assessments.",
-    allow_delegation=False,
-)
+# Create agents
+agents = {}
+for agent_name, agent_config in agents_config.items():
+    agents[agent_name] = Agent(
+        role=agent_config['role'],
+        goal=agent_config['goal'],
+        backstory=agent_config['backstory'],
+        allow_delegation=agent_config.get('allow_delegation', False),
+        llm= llm
+    )
 
-issue_categorizer = Agent(
-    role="Issue Categorizer",
-    goal="Categorize identified issues for further action",
-    backstory="Adept at categorizing and prioritizing security issues.",
-    allow_delegation=False,
-)
+# Create tasks
+tasks = []
+for task_config in tasks_config:
+    task_function = globals().get(task_config['function'])
+    if task_function:
+        tasks.append(Task(
+            description=task_config['description'],
+            func=task_function,
+            expected_output=task_config['expected_output'],
+            agent=agents[task_config['agent']]
+        ))
 
-manual_reviewer = Agent(
-    role="Manual Reviewer",
-    goal="Conduct a detailed manual review of the contract",
-    backstory="Experienced in manual code reviews.",
-    allow_delegation=False,
-)
-
-security_monitor = Agent(
-    role="Ongoing Security Monitor",
-    goal="Monitor ongoing security status of the contract",
-    backstory="Specialist in continuous security monitoring.",
-    allow_delegation=False,
-)
-
-report_generator = Agent(
-    role="Report Generator",
-    goal="Generate comprehensive reports",
-    backstory="Proficient in creating detailed and clear reports.",
-    allow_delegation=False,
-)
-
-retester = Agent(
-    role="Retester",
-    goal="Verify fixes and retest vulnerabilities",
-    backstory="Expert in verification and retesting processes.",
-    allow_delegation=False,
-)
-
-tester = Agent(
-    role="Tester",
-    goal="Conduct comprehensive testing of the smart contract",
-    backstory="Experienced in various testing methodologies.",
-    allow_delegation=False,
-)
-
-# Define tasks
-tasks = [
-    Task(
-        description="Initial review of the smart contract.",
-        func=initial_review,
-        expected_output="Initial review report.",
-        agent=initial_reviewer
-    ),
-    Task(
-        description="Automated scanning of the smart contract using Mythril and Slither.",
-        func=automated_scanning,
-        expected_output="Automated scanning report.",
-        agent=scanner
-    ),
-    Task(
-        description="Check code cleanliness of the smart contract.",
-        func=check_code_cleanliness,
-        expected_output="Code cleanliness report.",
-        agent=code_reviewer
-    ),
-    Task(
-        description="Manual review of the smart contract.",
-        func=manual_reviewer,
-        expected_output="Manual review report.",
-        agent=manual_reviewer
-    ),
-    Task(
-        description="Retest the smart contract for previously identified vulnerabilities.",
-        func=retest_verification,
-        expected_output="Retest verification report.",
-        agent=retester
-    ),
-    Task(
-        description="Comprehensive testing of the smart contract.",
-        func=comprehensive_testing,
-        expected_output="Comprehensive testing report.",
-        agent=tester
-    ),
-    Task(
-        description="Generate the final report.",
-        func=generate_report,
-        expected_output="Final report.",
-        agent=report_generator
-    ),
-  
-]
-
-# Set up manager LLM
-manager_llm = ChatOpenAI(model_name="gpt-4")
-
-# Define manager agent
+# Define manager agent using LLaMA 3
 manager = Agent(
     role="Project Manager",
     goal="Oversee the project and ensure high-quality output.",
     backstory="Experienced in managing complex projects and coordinating teams.",
     allow_delegation=True,
-    tools=[manager_llm]
+    llm= llm
 )
 
-# Instantiate crew with a custom manager
+# Instantiate crew
 crew = Crew(
-    agents=[analyst, simulator, scanner, code_reviewer, initial_reviewer, issue_categorizer, manual_reviewer, security_monitor, report_generator, retester, tester],
+    agents=list(agents.values()),
     tasks=tasks,
     manager_agent=manager,
-    process=Process.hierarchical,
-    manager_llm=manager_llm
+    process=Process.hierarchical
 )
 
-# Start the crew's work
-result = crew.kickoff()
-logger.info(result)
+def main():
+    logger.info("Starting SolidityHackingAgents analysis with LLaMA 3")
+    
+    try:
+        # Start the crew's work
+        result = crew.kickoff()
+        logger.info(f"Crew analysis completed. Raw result: {result}")
+        
+        # Analyze results
+        analyzed_results = analyze_results(result)
+        logger.info(f"Results analyzed: {analyzed_results}")
+        
+        # Generate final report
+        #final_report = generate_final_report(analyzed_results)
+        logger.info("Final report generated")
+        
+        # Save final report
+       # with open('final_security_report.json', 'w') as f:
+           # json.dump(final_report, f, indent=4)
+        logger.info("Final report saved to final_security_report.json")
+        
+       
+        
+        # Run continuous learning pipeline
+        from solidtyhackingagents.tools.hacktool import run_pipeline
+        run_pipeline(analyzed_results)
+        logger.info("Continuous learning pipeline executed")
+        
+        
+        
+        # Run testing procedures
+        formal_verification.verify()
+        fuzz_testing.run()
+        invariant_testing.test()
+        performance_testing.evaluate()
+        scalability_testing.test()
+        security_audit_tools.audit()
+        upgradeable_contracts.check()
+        logger.info("Testing completed")
+
+        # Run all defined agent functions
+        assign_task()
+        attack_manager()
+        audit_agent()
+        basic_error_agent()
+        behavioral_analysis_agent()
+        black_hat_agent()
+        compliance_check_agent()
+        configure_crew()
+        define_agent()
+        disaster_recovery_agent()
+        economic_attack_agent()
+        exploit_generator_agent()
+        forensics_agent()
+        incident_response_agent()
+        knowledge_update_agent()
+        patch_management_agent()
+        privacy_breach_agent()
+        rapid_deployment_agent()
+        report_agent()
+        research_agent()
+        risk_assessment_agent()
+        security_training_agent()
+        social_engineering_agent()
+        threat_intelligence_agent()
+        vulnerability_scanner_agent()
+        white_hat_agent()
+        
+        # Run all defined attack methods
+        access_control_attack()
+        adversarial_attacks()
+        business_logic_attack()
+        clickjacking_attack()
+        command_injection_attack()
+        consensus_attack()
+        cross_site_scripting_attack()
+        cryptographic_attack()
+        custom_exploit()
+        data_leakage_attack()
+        ddos_attack()
+        delegatecall_attack()
+        denial_of_service_attack()
+        dos_attack()
+        front_running_attack()
+        integer_underflow_attack()
+        load_adversarial_datasets()
+        overflow_attack()
+        phishing_attack()
+        race_condition_attack()
+        reentrancy_attack()
+        session_fixation_attack()
+        smart_contract_misconfiguration()
+        smart_contract_reconfiguration_attack()
+        timestamp_dependency_attack()
+        token_theft_attack()
+        tx_origin_attack()
+        unchecked_low_level_calls()
+        wallet_exploit()
+    
+      
+        # Audit-related functions
+        automated_scanning()
+        # Audit-related functions
+        automated_scanning()
+        code_cleanliness()
+        initial_review()
+        issue_categorization()
+        manual_review()
+        ongoing_security()
+        preparation_documentation()
+        report_generation()
+        retesting_verification()
+        testing()
+
+
+
+    except Exception as e:
+        logger.error(f"An error occurred during the analysis: {str(e)}", exc_info=True)
+    
+    logger.info("SolidityHackingAgents analysis with LLaMA 3 completed")
+
+if __name__ == "__main__":
+    main()
